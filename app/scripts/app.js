@@ -59,6 +59,16 @@ Instructions:
     Your code goes here! Uncomment the next line when you're ready to start!
      */
 
-    // getJSON('../data/earth-like-results.json')
+    getJSON('../data/earth-like-results.json')
+		.then(function(response) {
+			console.log(response);
+			var sequence = response.results.map(getJSON);
+			console.log(sequence);
+			Promise.all(sequence).then(function(arrayOfResults){
+				arrayOfResults.forEach(function(obj){
+					createPlanetThumb(obj);
+				});
+			});
+		});
   });
 })(document);
