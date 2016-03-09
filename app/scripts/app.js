@@ -51,11 +51,29 @@ Instructions:
    * @param  {String} url - The JSON URL to fetch.
    * @return {Promise}    - A promise that passes the parsed JSON response.
    */
-  function getJSON(url) {
+  /*function getJSON(url) {
     return get(url).then(function(response) {
       return response.json();
     });
-  }
+  }*/
+  
+  function getJSON(url) {
+  console.log('sent: ' + url);
+  return get(url).then(function(response) {
+    // For testing purposes, I'm making sure that the urls don't return in order
+    if (url === 'data/planets/Kepler-186f.json') {
+      return new Promise(function(resolve) {
+        setTimeout(function() {
+          console.log('received: ' + url);
+          resolve(response.json());
+        }, 500);
+      });
+    } else {
+      console.log('received: ' + url);
+      return response.json();
+    }
+  });
+}
 
   window.addEventListener('WebComponentsReady', function() {
     home = document.querySelector('section[data-route="home"]');
@@ -66,15 +84,15 @@ Instructions:
     .then(function(response) {
 		console.log(response);
 		var P = [];
-      response.results.forEach(function(url) {
-        //getJSON(url).then(createPlanetThumb);
-		P.push(getJSON(url));
-      });
-	  for(var i=0;i<P.length;i++) {
-		Promise.all(P.slice(0,i+1)).then(function(arrayOfResults) {
-			createPlanetThumb(arrayOfResults[arrayOfResults.length - 1]);
-		});
-	  }
+		for(var i=0;i<response.results.length;i++) {
+			var url = response.results[i];
+			P.push(getJSON(url));
+			Promise.all(P.slice(0,i+1)).then(function(arrayOfResults) {
+				var l = arrayOfResults.length;
+				console.log('doing all #'+l);
+				createPlanetThumb(arrayOfResults[l-1]);
+			});
+		}
     });
   });
 })(document);
